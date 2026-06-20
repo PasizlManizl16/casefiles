@@ -2,16 +2,26 @@
 
 import { AnimatePresence } from "framer-motion";
 import { SceneProvider, useScene } from "@/lib/scene-context";
+import { ProgressProvider } from "@/lib/progress-context";
+import { NotificationProvider } from "@/lib/notification-context";
 import { SCENES } from "@/lib/scenes";
 import { DeskHub } from "./DeskHub";
 import { MonitorView } from "@/components/views/MonitorView";
 import { PhoneView } from "@/components/views/PhoneView";
 import { FolderView } from "@/components/views/FolderView";
 import { EvidenceBoardView } from "@/components/views/EvidenceBoardView";
+import { NotificationToast } from "@/components/ui/NotificationToast";
 
 function OfficeSceneContent() {
   const { activeScene, isDesk } = useScene();
   const showOverlay = activeScene !== SCENES.DESK;
+
+  const overlayDim =
+    activeScene === SCENES.MONITOR
+      ? "bg-black/50"
+      : activeScene === SCENES.EVIDENCE_BOARD
+        ? "bg-black/70"
+        : "bg-black/30";
 
   return (
     <div className="game-canvas fixed inset-0 h-[100dvh] w-[100dvw] overflow-hidden bg-[#0a1628]">
@@ -25,8 +35,10 @@ function OfficeSceneContent() {
       </AnimatePresence>
 
       {!isDesk && (
-        <div className="pointer-events-none absolute inset-0 z-30 bg-black/20" aria-hidden />
+        <div className={`pointer-events-none absolute inset-0 z-30 transition-colors duration-500 ${overlayDim}`} aria-hidden />
       )}
+
+      <NotificationToast />
     </div>
   );
 }
@@ -34,7 +46,11 @@ function OfficeSceneContent() {
 export function OfficeScene() {
   return (
     <SceneProvider>
-      <OfficeSceneContent />
+      <ProgressProvider>
+        <NotificationProvider>
+          <OfficeSceneContent />
+        </NotificationProvider>
+      </ProgressProvider>
     </SceneProvider>
   );
 }

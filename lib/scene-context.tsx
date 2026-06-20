@@ -12,6 +12,7 @@ import { SCENES, type SceneId } from "./scenes";
 
 type SceneContextValue = {
   activeScene: SceneId;
+  currentView: SceneId;
   isDesk: boolean;
   goToScene: (scene: SceneId) => void;
   backToDesk: () => void;
@@ -33,6 +34,7 @@ export function SceneProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       activeScene,
+      currentView: activeScene,
       isDesk: activeScene === SCENES.DESK,
       goToScene,
       backToDesk,

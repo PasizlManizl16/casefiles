@@ -97,6 +97,26 @@ body {
   animation: shimmer 8s ease-in-out infinite;
 }
 
+@keyframes monitor-flicker {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.015;
+  }
+  52% {
+    opacity: 0.03;
+  }
+  54% {
+    opacity: 0;
+  }
+}
+
+.monitor-flicker {
+  animation: monitor-flicker 8s ease-in-out infinite;
+}
+
 @media (orientation: portrait) {
   .game-canvas {
     display: none !important;
@@ -117,7 +137,8 @@ body {
   .rain-drop,
   .lamp-glow,
   .monitor-glow,
-  .desk-shimmer {
+  .desk-shimmer,
+  .monitor-flicker {
     animation: none !important;
   }
 }

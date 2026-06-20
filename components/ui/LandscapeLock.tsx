@@ -27,7 +27,7 @@ export function LandscapeLock() {
         CASEFILES
       </h1>
       <p className="max-w-xs text-sm text-slate-400">
-        Rotate your device to landscape to continue your investigation.
+        Rotate your phone to continue the investigation.
       </p>
     </div>
   );
