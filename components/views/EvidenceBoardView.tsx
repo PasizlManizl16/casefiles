@@ -9,6 +9,7 @@ import { useProgress } from "@/lib/progress-context";
 import { useNotifications } from "@/lib/notification-context";
 import { useAudio } from "@/lib/audio-context";
 import { BOARD_CARDS, CASE_ID, type BoardCard } from "@/lib/case-data";
+import { OFFICE_SPRITES } from "@/lib/office-assets";
 
 const CARD_COLORS: Record<BoardCard["type"], string> = {
   suspect: "bg-[#e8dcc8] text-[#2a1f0a] border-[#8b6914]",
@@ -17,12 +18,21 @@ const CARD_COLORS: Record<BoardCard["type"], string> = {
   question: "bg-[#f5e6f0] text-[#2a1020] border-[#8b6080]",
 };
 
+const PIN_TEXTURES = [
+  OFFICE_SPRITES.boxClosed,
+  OFFICE_SPRITES.books,
+  OFFICE_SPRITES.coffee,
+  OFFICE_SPRITES.monitor,
+  OFFICE_SPRITES.notebook,
+  OFFICE_SPRITES.sideTable,
+];
+
 const BOARD_DECORATIONS = [
-  { id: "d1", type: "photo" as const, x: 8, y: 12, w: 14, h: 12, label: "Scene", rotation: -3 },
-  { id: "d2", type: "document" as const, x: 72, y: 10, w: 16, h: 11, label: "Report", rotation: 2 },
+  { id: "d1", type: "photo" as const, x: 8, y: 12, w: 14, h: 12, label: "Scene", rotation: -3, texture: PIN_TEXTURES[0] },
+  { id: "d2", type: "document" as const, x: 72, y: 10, w: 16, h: 11, label: "Report", rotation: 2, texture: PIN_TEXTURES[1] },
   { id: "d3", type: "sticky" as const, x: 45, y: 8, w: 12, h: 8, label: "Who?", rotation: -1 },
-  { id: "d4", type: "photo" as const, x: 75, y: 55, w: 13, h: 11, label: "Alley", rotation: 4, unlockAt: 1 },
-  { id: "d5", type: "document" as const, x: 6, y: 75, w: 15, h: 10, label: "Autopsy", rotation: -2, unlockAt: 2 },
+  { id: "d4", type: "photo" as const, x: 75, y: 55, w: 13, h: 11, label: "Alley", rotation: 4, unlockAt: 1, texture: PIN_TEXTURES[2] },
+  { id: "d5", type: "document" as const, x: 6, y: 75, w: 15, h: 10, label: "Autopsy", rotation: -2, unlockAt: 2, texture: PIN_TEXTURES[3] },
   { id: "d6", type: "sticky" as const, x: 55, y: 78, w: 11, h: 7, label: "22:41", rotation: 3, unlockAt: 3 },
 ];
 
@@ -87,6 +97,15 @@ export function EvidenceBoardView() {
             boxShadow: "inset 0 0 100px rgba(0,0,0,0.35), 8px 12px 40px rgba(0,0,0,0.6)",
           }}
         >
+          {/* Kenney board frame hint */}
+          <div
+            className="pointer-events-none absolute inset-[10px] opacity-15"
+            style={{
+              backgroundImage: `url(${OFFICE_SPRITES.bookcaseOpen})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
           {/* Frame */}
           <div className="absolute inset-0 border-[10px] border-[#4a3512]" />
 
@@ -173,8 +192,9 @@ function BoardDecoration({
   h,
   label,
   rotation,
+  texture,
 }: (typeof BOARD_DECORATIONS)[0]) {
-  const shadow = "4px 6px 12px rgba(0,0,0,0.35)";
+  const shadow = "4px 6px 14px rgba(0,0,0,0.45)";
 
   if (type === "sticky") {
     return (
@@ -207,11 +227,22 @@ function BoardDecoration({
           height: `${h}%`,
           transform: `rotate(${rotation}deg)`,
           boxShadow: shadow,
-          background: "linear-gradient(135deg, #2a3a4a, #1a2a3a)",
+          background: "#1a2530",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-        <span className="absolute bottom-0.5 left-1 font-[family-name:var(--font-geist-mono)] text-[6px] text-white/50">{label}</span>
+        {texture && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={texture}
+            alt=""
+            className="h-full w-full object-cover opacity-80"
+            style={{ imageRendering: "pixelated" }}
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
+        <span className="absolute bottom-0.5 left-1 font-[family-name:var(--font-geist-mono)] text-[6px] text-white/60">
+          {label}
+        </span>
         <PushPin />
       </div>
     );
@@ -219,7 +250,7 @@ function BoardDecoration({
 
   return (
     <div
-      className="absolute z-[5] border border-[#c8b898]/60 bg-[#f0e8d8] p-1"
+      className="absolute z-[5] overflow-hidden border border-[#c8b898]/60 bg-[#f0e8d8]"
       style={{
         left: `${x}%`,
         top: `${y}%`,
@@ -229,8 +260,18 @@ function BoardDecoration({
         boxShadow: shadow,
       }}
     >
-      <div className="h-full w-full border-b border-[#d0c8b8]/50" />
-      <span className="mt-0.5 block font-[family-name:var(--font-geist-mono)] text-[6px] text-[#4a4035]">{label}</span>
+      {texture && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={texture}
+          alt=""
+          className="absolute inset-0 h-full w-full object-contain opacity-50 p-0.5"
+          style={{ imageRendering: "pixelated" }}
+        />
+      )}
+      <span className="relative mt-auto block px-1 font-[family-name:var(--font-geist-mono)] text-[6px] text-[#4a4035]">
+        {label}
+      </span>
       <PushPin />
     </div>
   );

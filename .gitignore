@@ -32,6 +32,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# raw asset downloads (curated copies live in public/assets/office/)
+public/assets/_downloads/
+
 # vercel
 .vercel
 

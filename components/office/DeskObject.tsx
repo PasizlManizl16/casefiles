@@ -28,7 +28,7 @@ export function DeskObject({
       whileTap={{ scale: 0.96 }}
       whileHover={{ scale: 1.02 }}
       transition={spring}
-      className={`absolute z-20 min-h-[44px] min-w-[44px] cursor-pointer border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 ${className}`}
+      className={`absolute min-h-[44px] min-w-[44px] cursor-pointer border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 ${className}`}
       style={style}
     >
       {children}
