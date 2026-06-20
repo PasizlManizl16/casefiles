@@ -7,6 +7,7 @@ import { SceneOverlay } from "@/components/ui/SceneOverlay";
 import { useScene } from "@/lib/scene-context";
 import { useProgress } from "@/lib/progress-context";
 import { useNotifications } from "@/lib/notification-context";
+import { useAudio } from "@/lib/audio-context";
 import { useMotionSafe } from "@/lib/use-motion-safe";
 import {
   DOCUMENTS,
@@ -22,6 +23,7 @@ export function FolderView() {
   const { spring } = useMotionSafe();
   const { markDocumentImportant, isDocumentImportant } = useProgress();
   const { notify } = useNotifications();
+  const { play } = useAudio();
   const [screen, setScreen] = useState<FolderScreen>("categories");
   const [category, setCategory] = useState<DocumentCategory | null>(null);
   const [activeDoc, setActiveDoc] = useState<CaseDocument | null>(null);
@@ -108,7 +110,7 @@ export function FolderView() {
                       <button
                         key={doc.id}
                         type="button"
-                        onClick={() => { setActiveDoc(doc); setScreen("document"); }}
+                        onClick={() => { play("document-open"); setActiveDoc(doc); setScreen("document"); }}
                         className="relative w-full rounded-sm border border-[#d0c8b8] bg-[#f5f0e6] p-3 text-left shadow-md"
                       >
                         {isDocumentImportant(doc.id) && (

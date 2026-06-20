@@ -3,47 +3,61 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications, type NotificationType } from "@/lib/notification-context";
 
-const TYPE_STYLES: Record<NotificationType, string> = {
-  evidence: "border-cyan-500/40 bg-cyan-950/90 text-cyan-100",
-  connection: "border-red-500/40 bg-red-950/90 text-red-100",
-  contradiction: "border-amber-500/40 bg-amber-950/90 text-amber-100",
-  document: "border-emerald-500/40 bg-emerald-950/90 text-emerald-100",
+const TYPE_STYLES: Record<NotificationType, { border: string; bg: string; accent: string }> = {
+  evidence: { border: "#0891b2", bg: "#042f2e", accent: "#67e8f9" },
+  connection: { border: "#b91c1c", bg: "#1c0a0a", accent: "#fca5a5" },
+  contradiction: { border: "#d97706", bg: "#1c1208", accent: "#fcd34d" },
+  document: { border: "#059669", bg: "#022c22", accent: "#6ee7b7" },
 };
 
 const TYPE_LABEL: Record<NotificationType, string> = {
-  evidence: "NEW CLUE",
-  connection: "CONNECTION",
-  contradiction: "CONTRADICTION",
-  document: "DOCUMENT",
+  evidence: "Clue Found",
+  connection: "Linked",
+  contradiction: "Dead End",
+  document: "Noted",
 };
 
 export function NotificationToast() {
   const { notifications, dismiss } = useNotifications();
 
   return (
-    <div className="pointer-events-none fixed right-4 top-4 z-[100] flex flex-col gap-2" style={{ top: "max(1rem, var(--safe-top))" }}>
+    <div
+      className="pointer-events-none fixed right-3 top-3 z-[100] flex flex-col gap-2"
+      style={{ top: "max(0.75rem, var(--safe-top))" }}
+    >
       <AnimatePresence>
-        {notifications.map((n) => (
-          <motion.div
-            key={n.id}
-            initial={{ opacity: 0, x: 40, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 40, scale: 0.95 }}
-            className={`pointer-events-auto w-64 border-l-4 px-4 py-3 shadow-2xl backdrop-blur-sm ${TYPE_STYLES[n.type]}`}
-          >
-            <button
-              type="button"
-              onClick={() => dismiss(n.id)}
-              className="w-full text-left"
+        {notifications.map((n) => {
+          const style = TYPE_STYLES[n.type];
+          return (
+            <motion.div
+              key={n.id}
+              initial={{ opacity: 0, x: 30, rotate: 2 }}
+              animate={{ opacity: 1, x: 0, rotate: -1 }}
+              exit={{ opacity: 0, x: 30 }}
+              className="pointer-events-auto w-56 border-l-4 px-3 py-2.5"
+              style={{
+                borderColor: style.border,
+                background: style.bg,
+                boxShadow: "4px 6px 20px rgba(0,0,0,0.5)",
+              }}
             >
-              <p className="text-[9px] font-bold tracking-[0.2em] opacity-70">
-                {TYPE_LABEL[n.type]}
-              </p>
-              <p className="mt-0.5 text-xs font-semibold">{n.title}</p>
-              <p className="mt-1 text-[10px] opacity-80">{n.message}</p>
-            </button>
-          </motion.div>
-        ))}
+              <button type="button" onClick={() => dismiss(n.id)} className="w-full text-left">
+                <p
+                  className="font-serif text-[9px] font-bold uppercase tracking-[0.15em]"
+                  style={{ color: style.accent }}
+                >
+                  {TYPE_LABEL[n.type]}
+                </p>
+                <p className="mt-0.5 font-serif text-xs font-semibold italic text-amber-50/90">
+                  {n.title}
+                </p>
+                <p className="mt-1 font-[family-name:var(--font-geist-mono)] text-[9px] text-amber-100/50">
+                  {n.message}
+                </p>
+              </button>
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
     </div>
   );

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/ui/BackButton";
 import { MonitorScreen } from "@/components/ui/MonitorScreen";
 import { SceneOverlay } from "@/components/ui/SceneOverlay";
 import { useScene } from "@/lib/scene-context";
+import { useAudio } from "@/lib/audio-context";
 import { CASE_ID, MONITOR_APPS, type MonitorAppId } from "@/lib/case-data";
 import {
   AppWindow,
@@ -54,8 +55,13 @@ function renderApp(id: MonitorAppId) {
 
 export function MonitorView() {
   const { backToDesk } = useScene();
+  const { play } = useAudio();
   const [openApp, setOpenApp] = useState<MonitorAppId | null>(null);
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  useEffect(() => {
+    play("monitor-startup");
+  }, [play]);
 
   return (
     <SceneOverlay variant="zoom-monitor">
@@ -139,9 +145,9 @@ export function MonitorView() {
               </AnimatePresence>
 
               {/* Taskbar */}
-              <div className="absolute bottom-0 left-0 right-0 flex h-8 items-center border-t border-cyan-900/30 bg-black/50 px-3">
-                <span className="font-mono text-[8px] text-cyan-700">
-                  SYS://investigation — {openApp ? "APP RUNNING" : "IDLE"}
+              <div className="absolute bottom-0 left-0 right-0 flex h-8 items-center border-t border-cyan-900/20 bg-black/60 px-3">
+                <span className="font-mono text-[8px] text-cyan-800">
+                  {openApp ? "▸ running" : "▪ idle"} · {time}
                 </span>
               </div>
             </div>

@@ -1,6 +1,11 @@
 "use client";
 
-const RAIN_DROPS = Array.from({ length: 28 }, (_, i) => ({
+type AmbientEffectsProps = {
+  rainIntensity?: number;
+  monitorFlicker?: boolean;
+};
+
+const RAIN_DROPS = Array.from({ length: 36 }, (_, i) => ({
   id: i,
   left: `${(i * 3.7 + (i % 5) * 2) % 100}%`,
   delay: `${(i * 0.17) % 2.5}s`,
@@ -9,11 +14,17 @@ const RAIN_DROPS = Array.from({ length: 28 }, (_, i) => ({
   opacity: 0.15 + (i % 5) * 0.08,
 }));
 
-export function AmbientEffects() {
+export function AmbientEffects({
+  rainIntensity = 1,
+  monitorFlicker = false,
+}: AmbientEffectsProps) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {/* Window rain */}
-      <div className="absolute left-[2%] top-[8%] h-[42%] w-[28%] overflow-hidden rounded-sm opacity-80">
+      <div
+        className="absolute left-[2%] top-[8%] h-[42%] w-[28%] overflow-hidden rounded-sm transition-opacity duration-1000"
+        style={{ opacity: 0.5 + rainIntensity * 0.3 }}
+      >
         {RAIN_DROPS.map((drop) => (
           <span
             key={drop.id}
@@ -21,9 +32,9 @@ export function AmbientEffects() {
             style={{
               left: drop.left,
               height: drop.height,
-              opacity: drop.opacity,
+              opacity: drop.opacity * rainIntensity,
               animationDelay: drop.delay,
-              animationDuration: drop.duration,
+              animationDuration: `${parseFloat(drop.duration) / rainIntensity}s`,
             }}
           />
         ))}
@@ -40,7 +51,9 @@ export function AmbientEffects() {
 
       {/* Monitor blue glow */}
       <div
-        className="monitor-glow absolute left-[38%] top-[28%] h-[38%] w-[28%] rounded-lg"
+        className={`monitor-glow absolute left-[38%] top-[28%] h-[38%] w-[28%] rounded-lg transition-opacity duration-150 ${
+          monitorFlicker ? "opacity-30" : ""
+        }`}
         style={{
           background:
             "radial-gradient(ellipse at center, rgba(79,195,247,0.25) 0%, rgba(79,195,247,0.05) 50%, transparent 75%)",
@@ -56,12 +69,20 @@ export function AmbientEffects() {
         }}
       />
 
-      {/* Vignette */}
+      {/* Ambient occlusion vignette */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(5,10,20,0.65) 100%)",
+            "radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(5,10,20,0.7) 100%)",
+        }}
+      />
+
+      {/* Depth haze near ceiling */}
+      <div
+        className="absolute inset-x-0 top-0 h-[30%]"
+        style={{
+          background: "linear-gradient(180deg, rgba(5,10,20,0.4) 0%, transparent 100%)",
         }}
       />
     </div>
