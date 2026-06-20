@@ -1,28 +1,30 @@
 "use client";
 
-/** Ambient desk clutter — sticky notes & stains (no Kenney equivalents). */
+/** Ambient desk clutter — sticky notes & stains (procedural overlays). */
 export function DeskDetails() {
   return (
     <div className="pointer-events-none absolute inset-0 z-[9]" aria-hidden>
       <div
-        className="absolute bottom-[24%] left-[46%] h-[4%] w-[5%] rounded-full opacity-25"
+        className="absolute h-[4%] w-[5%] rounded-full opacity-30"
         style={{
+          left: "46%",
+          top: "52%",
           background: "radial-gradient(ellipse, #3d2817 0%, transparent 70%)",
           transform: "rotate(-12deg)",
         }}
       />
       <StickyNote
-        className="bottom-[30%] left-[26%] -rotate-6"
+        className="left-[22%] top-[50%] -rotate-6"
         color="#fef08a"
         lines={["Call lab", "re: samples"]}
       />
       <StickyNote
-        className="bottom-[34%] left-[31%] rotate-[5deg]"
+        className="left-[28%] top-[54%] rotate-[5deg]"
         color="#fde68a"
         lines={["Walsh —", "22:41"]}
       />
       <StickyNote
-        className="bottom-[28%] left-[76%] -rotate-3"
+        className="left-[78%] top-[48%] -rotate-3"
         color="#fef3c7"
         lines={["Follow up", "CCTV req"]}
       />

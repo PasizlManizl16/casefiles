@@ -10,6 +10,8 @@ type OfficeSpriteProps = {
   style?: React.CSSProperties;
   brightness?: number;
   priority?: boolean;
+  shadow?: boolean;
+  depthBlur?: number;
 };
 
 export function OfficeSprite({
@@ -19,8 +21,21 @@ export function OfficeSprite({
   style,
   brightness = 1,
   priority = false,
+  shadow = false,
+  depthBlur = 0,
 }: OfficeSpriteProps) {
   const src = OFFICE_SPRITES[sprite];
+  const filterParts = [
+    depthBlur > 0 ? `blur(${depthBlur}px)` : null,
+    `brightness(${brightness})`,
+    "saturate(0.88)",
+    "contrast(1.08)",
+    shadow || sprite !== "background"
+      ? "drop-shadow(0 10px 18px rgba(0,0,0,0.55))"
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (sprite === "background") {
     return (
@@ -31,14 +46,12 @@ export function OfficeSprite({
       >
         <Image
           src={src}
-          alt={alt || "Detective office interior"}
+          alt={alt || "Detective office interior at night"}
           fill
           priority={priority}
           sizes="100vw"
-          className="object-cover object-[72%_42%] scale-[1.35]"
-          style={{
-            filter: `brightness(${brightness}) saturate(0.75) contrast(1.05)`,
-          }}
+          className="object-cover object-center scale-[1.08]"
+          style={{ filter: filterParts }}
         />
       </div>
     );
@@ -47,19 +60,28 @@ export function OfficeSprite({
   return (
     <div
       className={`absolute ${className}`}
-      style={{
-        ...style,
-        filter: `brightness(${brightness}) drop-shadow(2px 4px 8px rgba(0,0,0,0.5))`,
-      }}
+      style={{ ...style, zIndex: style?.zIndex }}
+      aria-hidden={!alt}
     >
+      {shadow && (
+        <div
+          className="pointer-events-none absolute left-1/2 top-[88%] h-[18%] w-[78%] -translate-x-1/2 rounded-[50%]"
+          style={{
+            background: "radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 72%)",
+            filter: "blur(4px)",
+            zIndex: -1,
+          }}
+        />
+      )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
-        className="h-auto w-full max-w-none"
-        style={{ imageRendering: "pixelated" }}
+        className="relative h-auto w-full max-w-none"
+        style={{ filter: filterParts }}
         draggable={false}
         loading={priority ? "eager" : "lazy"}
+        decoding="async"
       />
     </div>
   );

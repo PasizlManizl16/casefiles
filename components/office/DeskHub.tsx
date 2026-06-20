@@ -12,7 +12,11 @@ import { useAudio } from "@/lib/audio-context";
 import { useDeskParallax } from "@/lib/use-desk-parallax";
 import { useAmbientEvents } from "@/lib/use-ambient-events";
 import { SCENES } from "@/lib/scenes";
-import { DESK_SPRITE_LAYOUT, HOTSPOT_LAYOUT } from "@/lib/office-assets";
+import {
+  DESK_SPRITE_LAYOUT,
+  HOTSPOT_LAYOUT,
+  SCENE_LIGHTING,
+} from "@/lib/office-assets";
 
 type DeskHubProps = {
   blurred?: boolean;
@@ -25,6 +29,67 @@ const LAYER_PARALLAX = {
   desk: "desk",
   props: "desk",
 } as const;
+
+function EvidenceBoardWallOverlay() {
+  return (
+    <div
+      className="pointer-events-none absolute z-[5]"
+      style={{
+        right: "4%",
+        top: "5%",
+        width: "26%",
+        height: "42%",
+      }}
+      aria-hidden
+    >
+      <div
+        className="absolute inset-0 rounded-sm opacity-30 mix-blend-multiply"
+        style={{
+          background: `
+            repeating-linear-gradient(
+              90deg,
+              #6b5344 0px,
+              #7a6352 2px,
+              #5c4638 4px
+            ),
+            repeating-linear-gradient(
+              0deg,
+              transparent 0px,
+              rgba(0,0,0,0.04) 1px,
+              transparent 2px
+            )
+          `,
+        }}
+      />
+      {[
+        { left: "18%", top: "22%" },
+        { left: "62%", top: "18%" },
+        { left: "44%", top: "48%" },
+        { left: "78%", top: "55%" },
+      ].map((pin, i) => (
+        <div
+          key={i}
+          className="absolute h-[5%] w-[5%] min-h-[6px] min-w-[6px] rounded-full"
+          style={{
+            left: pin.left,
+            top: pin.top,
+            background: "radial-gradient(circle at 35% 35%, #e57373, #8b1a1a)",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
+          }}
+        />
+      ))}
+      <svg
+        className="absolute inset-0 h-full w-full opacity-35"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <line x1="20" y1="24" x2="44" y2="50" stroke="#8b0000" strokeWidth="0.4" />
+        <line x1="62" y1="20" x2="44" y2="50" stroke="#8b0000" strokeWidth="0.4" />
+        <line x1="78" y1="56" x2="44" y2="50" stroke="#8b0000" strokeWidth="0.3" />
+      </svg>
+    </div>
+  );
+}
 
 export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
   const { goToScene } = useScene();
@@ -44,21 +109,23 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
   const layers = {
     background: DESK_SPRITE_LAYOUT.filter((s) => s.layer === "background"),
     wall: DESK_SPRITE_LAYOUT.filter((s) => s.layer === "wall"),
-    desk: DESK_SPRITE_LAYOUT.filter((s) => s.layer === "desk" || s.layer === "props"),
+    desk: DESK_SPRITE_LAYOUT.filter(
+      (s) => s.layer === "desk" || s.layer === "props",
+    ),
   };
+
+  const { monitorGlow, lampGlow, phoneVibrate } = SCENE_LIGHTING;
 
   return (
     <motion.div
-      className="relative h-full w-full overflow-hidden bg-[#0a1628]"
+      className="relative h-full w-full overflow-hidden bg-[#060a12]"
       animate={{ filter: blurred ? "blur(8px)" : "blur(0px)" }}
       transition={{ duration: 0.35 }}
       onPointerMove={parallax.handlePointerMove}
       onPointerLeave={parallax.handlePointerLeave}
     >
-      {/* Night atmosphere over base room */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-[#0a1628]/80 via-[#122033]/40 to-[#1a1208]/70" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-[#0a1628]/90 via-[#0d1a2d]/50 to-[#1a1208]/80" />
 
-      {/* Background layer */}
       <motion.div
         className="absolute inset-0 z-0"
         style={{ x: getParallax("background").x, y: getParallax("background").y }}
@@ -69,6 +136,7 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
             sprite={item.sprite}
             priority
             brightness={item.brightness ?? 1}
+            depthBlur={item.depthBlur}
             className="inset-0 h-full w-full"
           />
         ))}
@@ -79,7 +147,6 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
         <AmbientEventLayer activeEvent={ambient.activeEvent} />
       </motion.div>
 
-      {/* Wall layer */}
       <motion.div
         className="absolute inset-0 z-[2]"
         style={{ x: getParallax("wall").x, y: getParallax("wall").y }}
@@ -89,7 +156,7 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
             key={item.id}
             sprite={item.sprite}
             brightness={item.brightness ?? 0.95}
-            className=""
+            shadow={item.shadow}
             style={{
               left: item.left,
               top: item.top,
@@ -99,9 +166,21 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
             }}
           />
         ))}
+        <EvidenceBoardWallOverlay />
+        <div
+          className="pointer-events-none absolute z-[3] opacity-70"
+          style={{ left: "-2%", top: "4%", width: "34%", height: "38%" }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(30,60,120,0.35) 0%, transparent 55%)",
+            }}
+          />
+        </div>
       </motion.div>
 
-      {/* Desk & props layer */}
       <motion.div
         className="absolute inset-0 z-[3]"
         style={{ x: getParallax("desk").x, y: getParallax("desk").y }}
@@ -111,6 +190,7 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
             key={item.id}
             sprite={item.sprite}
             brightness={item.brightness ?? 1}
+            shadow={item.shadow}
             style={{
               left: item.left,
               top: item.top,
@@ -123,31 +203,51 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
 
         <DeskDetails />
 
-        {/* Monitor glow */}
         <div
-          className={`absolute left-[38%] top-[34%] h-[22%] w-[16%] rounded-lg transition-opacity duration-150 ${
-            ambient.monitorFlicker ? "opacity-40" : "opacity-100"
-          }`}
+          className="pointer-events-none absolute rounded-full"
           style={{
-            background:
-              "radial-gradient(ellipse at center, rgba(79,195,247,0.35) 0%, transparent 70%)",
+            left: lampGlow.left,
+            top: lampGlow.top,
+            width: lampGlow.width,
+            height: lampGlow.height,
             zIndex: 4,
+            background:
+              "radial-gradient(ellipse at 55% 45%, rgba(255,183,77,0.42) 0%, rgba(255,140,40,0.12) 45%, transparent 72%)",
           }}
         />
 
-        {/* Phone vibration target highlight */}
+        <div
+          className={`pointer-events-none absolute rounded-lg transition-opacity duration-150 ${
+            ambient.monitorFlicker ? "opacity-35" : "opacity-100"
+          }`}
+          style={{
+            left: monitorGlow.left,
+            top: monitorGlow.top,
+            width: monitorGlow.width,
+            height: monitorGlow.height,
+            zIndex: 5,
+            background:
+              "radial-gradient(ellipse at center, rgba(79,195,247,0.45) 0%, rgba(41,121,255,0.15) 40%, transparent 72%)",
+          }}
+        />
+
         <motion.div
-          className="absolute left-[58%] top-[52%] h-[12%] w-[7%]"
+          className="absolute"
           animate={
             ambient.phoneVibrating
               ? { x: [0, -1, 1, -1, 0], rotate: [0, -1, 1, 0] }
               : {}
           }
-          style={{ zIndex: 8 }}
+          style={{
+            left: phoneVibrate.left,
+            top: phoneVibrate.top,
+            width: phoneVibrate.width,
+            height: phoneVibrate.height,
+            zIndex: 9,
+          }}
         />
       </motion.div>
 
-      {/* Interactive hotspots */}
       <DeskObject
         label="Computer Monitor"
         onClick={() => goToScene(SCENES.MONITOR)}
@@ -177,19 +277,18 @@ export function DeskHub({ blurred = false, isActive = true }: DeskHubProps) {
         onClick={() => goToScene(SCENES.EVIDENCE_BOARD)}
         className="z-30"
         style={{
-          right: "6%",
+          right: HOTSPOT_LAYOUT.evidenceBoard.right,
           top: HOTSPOT_LAYOUT.evidenceBoard.top,
           width: HOTSPOT_LAYOUT.evidenceBoard.width,
           height: HOTSPOT_LAYOUT.evidenceBoard.height,
         }}
       />
 
-      {/* Vignette & depth */}
       <div
         className="pointer-events-none absolute inset-0 z-[20]"
         style={{
           background:
-            "radial-gradient(ellipse at 48% 42%, transparent 30%, rgba(5,8,16,0.75) 100%)",
+            "radial-gradient(ellipse at 46% 40%, transparent 28%, rgba(4,6,12,0.82) 100%)",
         }}
       />
     </motion.div>
